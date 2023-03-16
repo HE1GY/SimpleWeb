@@ -2,7 +2,7 @@
 #include <iostream>
 #include <regex>
 
-#include <mysql/jdbc.h>
+//#include <mysql/jdbc.h>
 
 #include "Student.h"
 
@@ -38,7 +38,6 @@ static void HandleHelloName( mg_connection *nc,   mg_http_message *hm,std::strin
 					"</body></html>\n",name.c_str());
 }
 
-
 static void HandleStudents(struct mg_connection *nc,   mg_http_message *hm)
 {
 	mg_printf(nc, "HTTP/1.1 200 OK\r\n""Content-Type: text/html\r\n""\r\n""<html><body>");
@@ -60,13 +59,14 @@ static void HandleStudentID(struct mg_connection *nc,   mg_http_message *hm,uint
 
 static void HandelRequest(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
   {
+
 	if (ev == MG_EV_HTTP_MSG)
 	{
+		mg_http_message * hm = (mg_http_message *)ev_data;
 		std::cmatch m;
 		std::regex pattern_hello("/hello/.*");
 		std::regex pattern_student("/students/[1-9]");
 
-		mg_http_message * hm = (mg_http_message *)ev_data;
 		std::string url = std::string(hm->uri.ptr,hm->uri.len);
 
 		if(mg_http_match_uri(hm,"/home"))
@@ -107,14 +107,10 @@ static void HandelRequest(struct mg_connection *c, int ev, void *ev_data, void *
 	}
 }
 
-
-
-
 int main(int argc, char *argv[])
 {
-	try
+	/*try
 	{
-	std::string conn_string = "Server=localhost;port=3306;database=kb39;uid=Oleh;password=A-z0976606041";
 
 	sql::mysql::MySQL_Driver* driver;
 	sql::Connection * con;
@@ -122,7 +118,7 @@ int main(int argc, char *argv[])
 	driver = sql::mysql::get_mysql_driver_instance();
 
 		sql::ConnectOptionsMap connection_properties;
-		connection_properties["hostName"] = "tcp://127.0.0.1:3306";
+		connection_properties["hostName"] = "tcp://localhost:3306";
 		connection_properties["userName"] = "Oleh";
 		connection_properties["password"] = "A-z0976606041";
 		connection_properties["schema"] = "kb39";
@@ -171,20 +167,20 @@ catch (sql::SQLException &e)
 	std::cout << ", SQLState: " << e.getSQLState() << " )" << std::endl;
 
 	return EXIT_FAILURE;
-}
+}*/
 
-
-
+	std::cout<<"Set up"<<std::endl;
 	mg_mgr mgr;
 	mg_mgr_init(&mgr);
-	mg_http_listen(&mgr, "http://localhost:8000", HandelRequest, &mgr);
-	for (;;) mg_mgr_poll(&mgr, 1000);
+	mg_http_listen(&mgr, "http://127.0.0.1:8000", HandelRequest, &mgr);
+
+	for (;;)
+	{
+		mg_mgr_poll(&mgr, 1000);
+	}
 
 	mg_mgr_free(&mgr);
 
-	/*delete con;
-	delete stmt;
-	delete res;*/
 
 	return 0;
 }

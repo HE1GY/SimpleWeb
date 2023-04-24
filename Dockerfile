@@ -1,7 +1,8 @@
-FROM ubuntu
+FROM gcc
 
 RUN  apt update  \
-    &&  apt install -y cmake -y build-essential -y net-tools -y gcc
+    &&  apt install -y cmake -y build-essential
+
 
 
 # Set the working directory to /app
@@ -17,4 +18,4 @@ RUN cmake .
 RUN cmake --build .
 
 # Run the application when the container launches
-#CMD ["./SimpleWeb"]
+CMD ["./SimpleWeb"]

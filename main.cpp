@@ -2,11 +2,10 @@
 #include <iostream>
 #include <regex>
 
-//#include <mysql/jdbc.h>
+
+#include <mysqlx/xdevapi.h>
 
 #include "Student.h"
-
-
 
 std::vector<Student> students;
 
@@ -109,70 +108,49 @@ static void HandelRequest(struct mg_connection *c, int ev, void *ev_data, void *
 
 int main(int argc, char *argv[])
 {
-	/*try
+	try
 	{
+		mysqlx::SessionSettings ss("db",33060,"root","secret", "kb39");
+		mysqlx::Session session(ss);
 
-	sql::mysql::MySQL_Driver* driver;
-	sql::Connection * con;
-
-	driver = sql::mysql::get_mysql_driver_instance();
-
-		sql::ConnectOptionsMap connection_properties;
-		connection_properties["hostName"] = "tcp://localhost:3306";
-		connection_properties["userName"] = "Oleh";
-		connection_properties["password"] = "A-z0976606041";
-		connection_properties["schema"] = "kb39";
-		connection_properties["port"] = 3306;
-		connection_properties["OPT_RECONNECT"] = true;
-
-	con = driver->connect(connection_properties);
+		mysqlx::Table myTable = session.getSchema("kb39").getTable("students");
+		mysqlx::RowResult  res = myTable.select("*").execute();
 
 
-	if(con->isValid()==0)
-	{
-		std::cout<<"Failed to connect"<<std::endl;
+			for(const auto& row : res)
+			{
+
+				std::cout << "id = " << row[0]<<std::endl;
+				std::cout << "Name " << row[1]<<std::endl;
+				std::cout << "MiddleName " << row[2]<<std::endl;
+				std::cout << "LastName " << row[3]<<std::endl;
+				std::cout << "Email " << row[4]<<"\n"<<std::endl;
+
+				Student student;
+				student.ID=row[0];
+				student.first_name=(std::string)row[1];
+				student.middle_name=(std::string)row[2];
+				student.second_name=(std::string)row[3];
+				student.email=(std::string)row[4];
+
+
+				students.push_back(student);
+			}
 	}
-
-
-	sql::Statement *stmt;
-	sql::ResultSet  *res;
-
-	stmt = con->createStatement();
-	stmt->execute("USE kb39");
-	res=stmt->executeQuery("SELECT * FROM students");
-
-	while(res->next())
+	catch (mysqlx::Error &e)
 	{
-		std::cout << "id = " << res->getInt(1)<<std::endl;
-		std::cout << "Name " << res->getString("FirstName")<<std::endl;
-		std::cout << "MiddleName " << res->getString("MiddleName")<<std::endl;
-		std::cout << "LastName " << res->getString("SecondName")<<std::endl;
-		std::cout << "Email " << res->getString("Email")<<"\n"<<std::endl;
-
-		Student student;
-		student.ID=res->getInt(1);
-		student.first_name=res->getString("FirstName");
-		student.middle_name=res->getString("MiddleName");
-		student.second_name=res->getString("SecondName");
-		student.email=res->getString("Email");
-
-		students.push_back(student);
+		std::cout << " MySQL error code: " << e.what()<<std::endl;
+		return EXIT_FAILURE;
 	}
-}
-catch (sql::SQLException &e)
-{
-	std::cout << "# ERR: SQLException in " << __FILE__<<std::endl;
-	std::cout << "# ERR: " << e.what();
-	std::cout << " (MySQL error code: " << e.getErrorCode();
-	std::cout << ", SQLState: " << e.getSQLState() << " )" << std::endl;
-
-	return EXIT_FAILURE;
-}*/
+	catch(...)
+	{
+		return EXIT_FAILURE;
+	}
 
 	std::cout<<"Set up"<<std::endl;
 	mg_mgr mgr;
 	mg_mgr_init(&mgr);
-	mg_http_listen(&mgr, "http://127.0.0.1:8000", HandelRequest, &mgr);
+	mg_http_listen(&mgr, "http://0.0.0.0:8000", HandelRequest, &mgr);
 
 	for (;;)
 	{

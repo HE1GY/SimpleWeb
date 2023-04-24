@@ -1,0 +1,37 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: on-failure
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=kb39
+    volumes:
+      - students-mysql-data:/var/lib/mysql
+    networks:
+      students-network:
+        aliases:
+          - db
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+
+  api:
+    build: .
+    networks:
+      - students-network
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
+volumes:
+  students-mysql-data:
+    external: true
+
+networks:
+  students-network:
+    external: true

@@ -39,7 +39,9 @@ static void HandleHelloName( mg_connection *nc,   mg_http_message *hm,std::strin
 
 static void HandleStudents(struct mg_connection *nc,   mg_http_message *hm)
 {
-	mg_printf(nc, "HTTP/1.1 200 OK\r\n""Content-Type: text/html\r\n""\r\n""<html><body>");
+	mg_printf(nc, "HTTP/1.1 200 OK\r\n""Content-Type: text/html\r\n""\r\n""<html><head>\n"
+				  "  <meta charset=\"UTF-8\">\n"
+				  "</head><body>");
 
 	for (const auto& student:students)
 	{
@@ -51,7 +53,9 @@ static void HandleStudents(struct mg_connection *nc,   mg_http_message *hm)
 static void HandleStudentID(struct mg_connection *nc,   mg_http_message *hm,uint32_t id)
 {
 	id-=1;
-	mg_printf(nc, "HTTP/1.1 200 OK\r\n""Content-Type: text/html\r\n""\r\n""<html><body>");
+	mg_printf(nc, "HTTP/1.1 200 OK\r\n""Content-Type: text/html\r\n""\r\n""<html><head>\n"
+				  "  <meta charset=\"UTF-8\">\n"
+				  "</head><body>");
 	mg_printf(nc,"%d   %s	%s	%s	%s ",students[id].ID,students[id].first_name.c_str(),students[id].middle_name.c_str(),students[id].second_name.c_str(),students[id].email.c_str());
 	mg_printf(nc,"</body></html>\n");
 }
